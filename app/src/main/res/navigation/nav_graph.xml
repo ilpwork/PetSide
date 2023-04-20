@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/authFragment">
+
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="com.example.petside.AuthFragment"
+        android:label="fragment_auth"
+        tools:layout="@layout/fragment_auth" >
+        <action
+            android:id="@+id/action_authFragment_to_apiKeyFragment"
+            app:destination="@id/apiKeyFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/feedFragment"
+        android:name="com.example.petside.FeedFragment"
+        android:label="feed_item_list"
+        tools:layout="@layout/feed_item_list" />
+    <fragment
+        android:id="@+id/apiKeyFragment"
+        android:name="com.example.petside.ApiKeyFragment"
+        android:label="fragment_api_key"
+        tools:layout="@layout/fragment_api_key" >
+        <action
+            android:id="@+id/action_apiKeyFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+    </fragment>
+</navigation>

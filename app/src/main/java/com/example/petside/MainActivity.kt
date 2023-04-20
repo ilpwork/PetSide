@@ -1,55 +1,29 @@
 package com.example.petside
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.petside.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
+
+    private lateinit var navController: NavController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        binding.buttonNext.isEnabled = false
 
-        binding.emailInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                val email = binding.emailInput.text
-                if (email === null || !android.util.Patterns.EMAIL_ADDRESS.matcher(email)
-                        .matches()
-                ) {
-                    binding.emailInputBox.error = "Incorrect E-mail"
-                    binding.buttonNext.isEnabled = false
-                }
-            } else {
-                binding.emailInputBox.error = null
-                val description = binding.descriptionInput.text
-                binding.buttonNext.isEnabled = description !== null && !description.isEmpty()
-            }
-        }
-
-        binding.descriptionInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                val description = binding.descriptionInput.text
-                if (description === null || description.isEmpty()) {
-                    binding.descriptionInputBox.error = "Description must not be empty"
-                    binding.buttonNext.isEnabled = false
-                }
-            } else {
-                binding.descriptionInputBox.error = null
-                val email = binding.emailInput.text
-                binding.buttonNext.isEnabled = email !== null && android.util.Patterns.EMAIL_ADDRESS.matcher(email)
-                    .matches()
-            }
-        }
-
+        val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+        setupActionBarWithNavController(navController)
     }
 
-
-    fun onNextPress(view: View) {
-
-
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 }
