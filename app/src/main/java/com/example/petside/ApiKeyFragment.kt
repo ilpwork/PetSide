@@ -52,6 +52,10 @@ class ApiKeyFragment : Fragment() {
             }
         }
 
+        binding.backButton.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         return view
     }
 
