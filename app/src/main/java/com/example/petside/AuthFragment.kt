@@ -47,7 +47,7 @@ class AuthFragment : Fragment() {
         val mainApi = retrofit.create(MainApi::class.java)
 
         binding.buttonNext.setOnClickListener {
-            binding.buttonNext.visibility = View.GONE
+            binding.buttonContainer.visibility = View.GONE
             binding.progressBar.visibility = View.VISIBLE
             CoroutineScope(Dispatchers.Main).launch {
                 try {
@@ -65,11 +65,15 @@ class AuthFragment : Fragment() {
             }
         }
 
+        binding.buttonSkip.setOnClickListener {
+            findNavController().navigate(AuthFragmentDirections.actionAuthFragmentToApiKeyFragment())
+        }
+
         return view
     }
 
     private fun endLoading() {
-        binding.buttonNext.visibility = View.VISIBLE
+        binding.buttonContainer.visibility = View.VISIBLE
         binding.progressBar.visibility = View.GONE
     }
 
