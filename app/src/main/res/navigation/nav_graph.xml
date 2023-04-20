@@ -15,17 +15,19 @@
             app:destination="@id/apiKeyFragment" />
     </fragment>
     <fragment
-        android:id="@+id/feedFragment"
-        android:name="com.example.petside.FeedFragment"
-        android:label="feed_item_list"
-        tools:layout="@layout/feed_item_list" />
-    <fragment
         android:id="@+id/apiKeyFragment"
         android:name="com.example.petside.ApiKeyFragment"
         android:label="fragment_api_key"
         tools:layout="@layout/fragment_api_key" >
         <action
-            android:id="@+id/action_apiKeyFragment_to_feedFragment"
-            app:destination="@id/feedFragment" />
+            android:id="@+id/action_apiKeyFragment_to_tabBarFragment"
+            app:destination="@id/tabBarFragment"
+            app:popUpTo="@id/nav_graph.xml"
+            app:popUpToInclusive="true" />
     </fragment>
+    <fragment
+        android:id="@+id/tabBarFragment"
+        android:name="com.example.petside.TabBarFragment"
+        android:label="fragment_tab_bar"
+        tools:layout="@layout/fragment_tab_bar" />
 </navigation>

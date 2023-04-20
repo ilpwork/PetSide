@@ -13,7 +13,7 @@
         android:layout_marginTop="132dp"
         android:letterSpacing="0.01"
         android:text="@string/petside"
-        android:textColor="@color/green1"
+        android:textColor="@color/green2"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

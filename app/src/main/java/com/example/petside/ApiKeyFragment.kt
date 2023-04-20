@@ -44,7 +44,7 @@ class ApiKeyFragment : Fragment() {
             binding.progressBar.visibility = View.VISIBLE
             CoroutineScope(Dispatchers.Main).launch {
                 try {
-                    findNavController().navigate(ApiKeyFragmentDirections.actionApiKeyFragmentToFeedFragment())
+                    findNavController().navigate(ApiKeyFragmentDirections.actionApiKeyFragmentToTabBarFragment())
                 } catch (e: HttpException) {
                     val dialog = AlertFragment(e.message(), ::endLoading)
                     dialog.show(parentFragmentManager, "AuthError")

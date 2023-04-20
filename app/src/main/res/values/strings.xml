@@ -8,4 +8,7 @@
     <string name="email">E-mail</string>
     <string name="description">Description</string>
     <string name="skip">Skip</string>
+    <string name="feed">Feed</string>
+    <string name="favourites">Favourites</string>
+    <string name="menu">Menu</string>
 </resources>
