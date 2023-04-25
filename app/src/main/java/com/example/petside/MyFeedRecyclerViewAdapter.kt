@@ -32,6 +32,7 @@ class MyFeedRecyclerViewAdapter(
 
         Glide.with(holder.itemView.context)
             .load(currentUrl)
+            .override(holder.itemView.width)
             .into(imageView)
     }
 
