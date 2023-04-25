@@ -1,9 +1,8 @@
 <resources>
     <string name="app_name">PetSide</string>
     <string name="petside">PetSide</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="api_key">api key</string>
+    <string name="api_key">Api key</string>
     <string name="next">Next</string>
     <string name="email">E-mail</string>
     <string name="description">Description</string>
@@ -11,5 +10,14 @@
     <string name="feed">Feed</string>
     <string name="favourites">Favourites</string>
     <string name="menu">Menu</string>
-    <string name="back_button">back button</string>
+    <string name="back_button">Back button</string>
+    <string name="dislike">Dislike</string>
+    <string name="like">Like</string>
+    <string name="add_to_favourites">Add to favourites</string>
+    <string name="more">More</string>
+    <string name="photo_of_cat">Photo of cat</string>
+    <string name="default_error">Something went wrong, try again later</string>
+    <string name="ok">ОК</string>
+    <string name="error">ERROR</string>
+    <string name="add_post">Add post</string>
 </resources>

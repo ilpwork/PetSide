@@ -1,43 +1,45 @@
 package com.example.petside
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-
-import com.example.petside.placeholder.PlaceholderContent.PlaceholderItem
+import android.widget.ImageView
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.petside.databinding.FeedItemBinding
+import com.example.petside.retrofit.CatImage
 
-/**
- * [RecyclerView.Adapter] that can display a [PlaceholderItem].
- * TODO: Replace the implementation with code for your data type.
- */
+
 class MyFeedRecyclerViewAdapter(
-        private val values: List<PlaceholderItem>)
-    : RecyclerView.Adapter<MyFeedRecyclerViewAdapter.ViewHolder>() {
+    private val values: List<CatImage>
+) : RecyclerView.Adapter<MyFeedRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
-    return ViewHolder(FeedItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        return ViewHolder(
+            FeedItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
 
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = values[position]
-        holder.idView.text = item.id
-        holder.contentView.text = item.content
+        val imageView: ImageView = holder.imageView
+        val currentUrl: String = item.url
+
+        Glide.with(holder.itemView.getContext())
+            .load(currentUrl)
+            .override(item.width, item.height)
+            .into(imageView)
     }
 
     override fun getItemCount(): Int = values.size
 
     inner class ViewHolder(binding: FeedItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        val idView: TextView = binding.itemNumber
-        val contentView: TextView = binding.content
-
-        override fun toString(): String {
-            return super.toString() + " '" + contentView.text + "'"
-        }
+        val imageView = binding.imageView
     }
 
 }

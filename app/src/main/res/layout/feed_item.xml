@@ -1,20 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:orientation="horizontal">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <TextView
-            android:id="@+id/item_number"
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        tools:srcCompat="@tools:sample/avatars"
+        android:layout_gravity="center"
+        android:contentDescription="@string/photo_of_cat" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        >
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:ignore="NestedWeights" />
+
+        <ImageButton
+            android:backgroundTint="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:textAppearance="?attr/textAppearanceListItem" />
+            app:tint="@color/gray3"
+            android:src="@drawable/baseline_star_outline_24"
+            android:contentDescription="@string/add_to_favourites" />
 
-    <TextView
-            android:id="@+id/content"
+        <ImageButton
+            android:backgroundTint="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:textAppearance="?attr/textAppearanceListItem" />
+            app:tint="@color/gray3"
+            android:src="@drawable/baseline_thumb_up_24"
+            android:contentDescription="@string/like" />
+
+        <ImageButton
+            android:backgroundTint="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tint="@color/gray3"
+            android:src="@drawable/baseline_thumb_down_24"
+            android:contentDescription="@string/dislike" />
+
+        <ImageButton
+            android:backgroundTint="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tint="@color/gray3"
+            android:src="@drawable/baseline_more_vert_24"
+            android:contentDescription="@string/more" />
+    </LinearLayout>
 </LinearLayout>
