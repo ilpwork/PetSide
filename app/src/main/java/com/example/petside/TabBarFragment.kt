@@ -19,9 +19,9 @@ class TabBarFragment : Fragment() {
         val view = binding.root
 
         val feedFragment = FeedFragment()
-        val addPostFragment = FeedFragment()
+        val addPostFragment = AddPostFragment()
         val favouritesFragment = FavouritesFragment()
-        val menuFragment = FeedFragment()
+        val menuFragment = MenuFragment()
 
         setCurrentFragment(feedFragment)
 
