@@ -30,9 +30,8 @@ class MyFeedRecyclerViewAdapter(
         val imageView: ImageView = holder.imageView
         val currentUrl: String = item.url
 
-        Glide.with(holder.itemView.getContext())
+        Glide.with(holder.itemView.context)
             .load(currentUrl)
-            .override(item.width, item.height)
             .into(imageView)
     }
 
