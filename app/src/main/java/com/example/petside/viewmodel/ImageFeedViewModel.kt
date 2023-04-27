@@ -11,11 +11,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
 import retrofit2.HttpException
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 
 class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: String, @Assisted val parentFragmentManager: FragmentManager): ViewModel() {
@@ -24,8 +20,10 @@ class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: Strin
     interface Factory {
         fun create(apiKey: String, parentFragmentManager: FragmentManager): ImageFeedViewModel
     }
+
     @Inject
     lateinit var retrofitService: RetrofitService
+
     private var list = ArrayList<CatImage>()
     private var limit = 10
     private var page = 0
@@ -33,9 +31,6 @@ class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: Strin
     var catImages = MutableLiveData<List<CatImage>>()
     var loading = false
     var hasMore = true
-
-
-
 
     fun getNextPage() {
         if (hasMore) {

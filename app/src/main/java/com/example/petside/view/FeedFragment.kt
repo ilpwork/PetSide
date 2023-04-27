@@ -62,6 +62,7 @@ class FeedFragment : Fragment() {
                 viewModel = imageFeedViewModelFactory.create(it.api_key, parentFragmentManager)
                 feedUpdateObserver()
             }
+            viewModel.getNextPage()
         }
 
         return view
@@ -71,7 +72,6 @@ class FeedFragment : Fragment() {
         viewModel.catImages.observe(viewLifecycleOwner) {
             feedAdapter.addCatImages(it as ArrayList<CatImage>)
         }
-        viewModel.getNextPage()
     }
 
 }
