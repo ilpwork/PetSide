@@ -29,6 +29,7 @@ class ImageFeedViewModel @AssistedInject constructor(@Assisted val lifecycleOwne
     private var page = 0
 
     var catImages = MutableLiveData<List<CatImage>>()
+    var list = ArrayList<CatImage>()
     var loading = false
     var hasMore = true
 
@@ -52,7 +53,8 @@ class ImageFeedViewModel @AssistedInject constructor(@Assisted val lifecycleOwne
                         limit,
                         page
                     )
-                    catImages.value = newList
+                    list.addAll(newList)
+                    catImages.value = list
                     page++
                     hasMore = newList.size == 10
                     loading = false
