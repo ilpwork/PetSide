@@ -1,7 +1,11 @@
 package com.example.petside.viewmodel
 
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.*
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.petside.db.UserEntity
 import com.example.petside.model.CatImage
 import com.example.petside.retrofit.RetrofitService
 import com.example.petside.view.AlertFragment
@@ -12,24 +16,30 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import javax.inject.Inject
 
-class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: String, @Assisted val parentFragmentManager: FragmentManager): ViewModel() {
+class ImageFeedViewModel @AssistedInject constructor(@Assisted val lifecycleOwner: LifecycleOwner, @Assisted  val parentFragmentManager: FragmentManager, val user: LiveData<UserEntity>, val retrofitService: RetrofitService): ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(apiKey: String, parentFragmentManager: FragmentManager): ImageFeedViewModel
+        fun create(lifecycleOwner: LifecycleOwner, parentFragmentManager: FragmentManager): ImageFeedViewModel
     }
 
-    @Inject
-    lateinit var retrofitService: RetrofitService
-
+    private lateinit var apiKey: String
     private var limit = 10
     private var page = 0
 
     var catImages = MutableLiveData<List<CatImage>>()
     var loading = false
     var hasMore = true
+
+    init {
+        user.observe(lifecycleOwner) {
+            if (it !== null) {
+                apiKey = it.api_key
+                getNextPage()
+            }
+        }
+    }
 
     fun getNextPage() {
         if (hasMore) {

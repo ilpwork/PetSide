@@ -2,7 +2,6 @@ package com.example.petside.view
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +42,11 @@ class FeedFragment : Fragment() {
     ): View {
         val view: RecyclerView =
             inflater.inflate(R.layout.feed_item_list, container, false) as RecyclerView
+
+        if (!this::viewModel.isInitialized) {
+            viewModel = imageFeedViewModelFactory.create(viewLifecycleOwner, parentFragmentManager)
+        }
+
         with(view) {
             layoutManager = LinearLayoutManager(context)
             adapter = feedAdapter
@@ -56,13 +60,7 @@ class FeedFragment : Fragment() {
             }
         view.addOnScrollListener(scrollListener)
 
-        user.observe(viewLifecycleOwner) {
-            if (it !== null) {
-                viewModel = imageFeedViewModelFactory.create(it.api_key, parentFragmentManager)
-                feedUpdateObserver()
-            }
-            viewModel.getNextPage()
-        }
+        feedUpdateObserver()
 
         return view
     }
