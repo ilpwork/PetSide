@@ -1,41 +1,45 @@
 package com.example.petside.viewmodel
 
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import com.example.petside.model.CatImage
 import com.example.petside.retrofit.RetrofitService
+import com.example.petside.view.AlertFragment
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
 import retrofit2.HttpException
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
 
-class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: String): ViewModel() {
+class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: String, @Assisted val parentFragmentManager: FragmentManager): ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(apiKey: String): ImageFeedViewModel
+        fun create(apiKey: String, parentFragmentManager: FragmentManager): ImageFeedViewModel
     }
-
-    var catImages = MutableLiveData<List<CatImage>>()
+    @Inject
+    lateinit var retrofitService: RetrofitService
     private var list = ArrayList<CatImage>()
-
     private var limit = 10
     private var page = 0
+
+    var catImages = MutableLiveData<List<CatImage>>()
     var loading = false
     var hasMore = true
+
+
+
 
     fun getNextPage() {
         if (hasMore) {
             loading = true
-            val retrofit = Retrofit.Builder()
-                .baseUrl("https://api.thecatapi.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-            val retrofitService = retrofit.create(RetrofitService::class.java)
 
             CoroutineScope(Dispatchers.Main).launch {
                 try {
@@ -46,15 +50,19 @@ class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: Strin
                     )
                     list.addAll(newList)
                     catImages.value = list
-                    page += 1
+                    page++
                     hasMore = newList.size == 10
                     loading = false
                 } catch (e: HttpException) {
-                    /*val dialog = AlertFragment(e.message(), ::endLoading)
-                dialog.show(parentFragmentManager, "ApiKeyError")*/
+                    val dialog = AlertFragment(e.message(), ::endLoading)
+                    dialog.show(parentFragmentManager, "ApiKeyError")
                 }
             }
         }
+    }
+
+    fun endLoading() {
+
     }
 
 }
