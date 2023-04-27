@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/authFragment"
-        android:name="com.example.petside.AuthFragment"
+        android:name="com.example.petside.view.AuthFragment"
         android:label="fragment_auth"
         tools:layout="@layout/fragment_auth" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/apiKeyFragment"
-        android:name="com.example.petside.ApiKeyFragment"
+        android:name="com.example.petside.view.ApiKeyFragment"
         android:label="fragment_api_key"
         tools:layout="@layout/fragment_api_key" >
         <action
@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/tabBarFragment"
-        android:name="com.example.petside.TabBarFragment"
+        android:name="com.example.petside.view.TabBarFragment"
         android:label="fragment_tab_bar"
         tools:layout="@layout/fragment_tab_bar" />
 </navigation>

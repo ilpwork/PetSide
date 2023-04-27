@@ -1,4 +1,4 @@
-package com.example.petside
+package com.example.petside.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

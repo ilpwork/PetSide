@@ -1,4 +1,4 @@
-package com.example.petside
+package com.example.petside.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,7 +6,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.petside.databinding.FeedItemBinding
-import com.example.petside.retrofit.CatImage
+import com.example.petside.model.CatImage
 
 
 class MyFeedRecyclerViewAdapter(

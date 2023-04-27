@@ -6,12 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(entities = [UserEntity::class], version = 1)
-abstract class MainDb : RoomDatabase() {
+abstract class AppDatabase : RoomDatabase() {
     abstract fun getDao(): Dao
 
     companion object {
-        fun getMainDb(context: Context): MainDb {
-            return Room.databaseBuilder(context.applicationContext, MainDb::class.java, "cat.db")
+        fun getAppDatabase(context: Context): AppDatabase {
+            return Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "cat.db")
                 .build()
         }
     }

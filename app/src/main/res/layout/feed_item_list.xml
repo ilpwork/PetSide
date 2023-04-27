@@ -10,5 +10,5 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
-        tools:context=".FeedFragment"
+        tools:context=".view.FeedFragment"
         tools:listitem="@layout/feed_item"/>

@@ -1,4 +1,4 @@
-package com.example.petside.retrofit
+package com.example.petside.model
 
 data class CatImage(
     val id: String,

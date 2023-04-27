@@ -1,18 +1,19 @@
-package com.example.petside
+package com.example.petside.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.petside.R
 
-class AddPostFragment : Fragment() {
+class MenuFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_add_post, container, false)
+        return inflater.inflate(R.layout.fragment_menu, container, false)
     }
 
 }
