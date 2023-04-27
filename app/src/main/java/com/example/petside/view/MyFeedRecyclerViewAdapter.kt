@@ -4,8 +4,11 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
@@ -38,6 +41,10 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = catImages[position]
         val imageView: ImageView = holder.imageView
+        val addToFavouritesButton: ImageButton = holder.addToFavouritesButton
+        val upVoteButton: ImageButton = holder.upVoteButton
+        val downVoteButton: ImageButton = holder.downVoteButton
+        val moreButton: ImageButton = holder.moreButton
         val currentUrl: String = item.url
 
         val circularProgressDrawable = CircularProgressDrawable(holder.itemView.context)
@@ -55,17 +62,38 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
             )
             .placeholder(circularProgressDrawable)
             .into(imageView)
+
+        addToFavouritesButton.setOnClickListener {
+            (it as ImageButton).setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.blue2))
+        }
+
+        upVoteButton.setOnClickListener {
+            (it as ImageButton).setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.blue2))
+        }
+
+        downVoteButton.setOnClickListener {
+            (it as ImageButton).setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.blue2))
+        }
+
+        moreButton.setOnClickListener {
+            (it as ImageButton).setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.blue2))
+        }
     }
 
     fun addCatImages(newImages: ArrayList<CatImage>) {
+        val oldSize = catImages.size
         catImages = newImages
-        notifyDataSetChanged()
+        notifyItemRangeInserted(oldSize - 1, newImages.size - oldSize)
     }
 
     override fun getItemCount(): Int = catImages.size
 
     inner class ViewHolder(binding: FeedItemBinding) : RecyclerView.ViewHolder(binding.root) {
         val imageView = binding.imageView
+        val addToFavouritesButton = binding.addToFavouritesButton
+        val upVoteButton = binding.upVoteButton
+        val downVoteButton = binding.downVoteButton
+        val moreButton = binding.moreButton
     }
 
 }

@@ -30,6 +30,7 @@
             tools:ignore="NestedWeights" />
 
         <ImageButton
+            android:id="@+id/addToFavouritesButton"
             android:backgroundTint="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
@@ -38,6 +39,7 @@
             android:contentDescription="@string/add_to_favourites" />
 
         <ImageButton
+            android:id="@+id/upVoteButton"
             android:backgroundTint="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
@@ -46,6 +48,7 @@
             android:contentDescription="@string/like" />
 
         <ImageButton
+            android:id="@+id/downVoteButton"
             android:backgroundTint="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
@@ -54,6 +57,7 @@
             android:contentDescription="@string/dislike" />
 
         <ImageButton
+            android:id="@+id/moreButton"
             android:backgroundTint="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
