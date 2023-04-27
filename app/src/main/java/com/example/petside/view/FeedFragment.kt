@@ -28,7 +28,7 @@ class FeedFragment : Fragment() {
     lateinit var imageFeedViewModelFactory: ImageFeedViewModel.Factory
     private lateinit var viewModel: ImageFeedViewModel
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
-    var feedAdapter: MyFeedRecyclerViewAdapter = MyFeedRecyclerViewAdapter()
+    private var feedAdapter: MyFeedRecyclerViewAdapter = MyFeedRecyclerViewAdapter()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -43,7 +43,6 @@ class FeedFragment : Fragment() {
     ): View {
         val view: RecyclerView =
             inflater.inflate(R.layout.feed_item_list, container, false) as RecyclerView
-
         with(view) {
             layoutManager = LinearLayoutManager(context)
             adapter = feedAdapter

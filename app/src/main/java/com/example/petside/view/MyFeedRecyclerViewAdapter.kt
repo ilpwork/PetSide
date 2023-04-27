@@ -2,6 +2,7 @@ package com.example.petside.view
 
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
@@ -82,8 +83,8 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
 
     fun addCatImages(newImages: ArrayList<CatImage>) {
         val oldSize = catImages.size
-        catImages = newImages
-        notifyItemRangeInserted(oldSize - 1, newImages.size - oldSize)
+        catImages.addAll(newImages)
+        notifyItemRangeInserted(oldSize - 1, newImages.size)
     }
 
     override fun getItemCount(): Int = catImages.size

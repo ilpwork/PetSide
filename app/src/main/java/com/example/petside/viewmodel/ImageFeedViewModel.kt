@@ -24,7 +24,6 @@ class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: Strin
     @Inject
     lateinit var retrofitService: RetrofitService
 
-    private var list = ArrayList<CatImage>()
     private var limit = 10
     private var page = 0
 
@@ -43,8 +42,7 @@ class ImageFeedViewModel @AssistedInject constructor(@Assisted val apiKey: Strin
                         limit,
                         page
                     )
-                    list.addAll(newList)
-                    catImages.value = list
+                    catImages.value = newList
                     page++
                     hasMore = newList.size == 10
                     loading = false
