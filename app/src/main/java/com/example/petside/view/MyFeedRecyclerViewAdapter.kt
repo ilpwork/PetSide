@@ -9,10 +9,15 @@ import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.CenterInside
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.example.petside.R
 import com.example.petside.databinding.FeedItemBinding
 import com.example.petside.model.CatImage
+import jp.wasabeef.glide.transformations.CropSquareTransformation
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
 
 class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter.ViewHolder>() {
@@ -45,7 +50,10 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
             .load(currentUrl)
             .override(holder.itemView.width, 600)
             .transition(withCrossFade())
-            .centerCrop()
+            .transform(
+                CropSquareTransformation(),
+                RoundedCornersTransformation(16, 0, RoundedCornersTransformation.CornerType.TOP)
+            )
             .placeholder(circularProgressDrawable)
             .into(imageView)
     }
