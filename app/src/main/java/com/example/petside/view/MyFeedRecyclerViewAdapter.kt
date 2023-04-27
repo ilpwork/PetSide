@@ -85,7 +85,7 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
         val oldSize = catImages.size
         catImages.clear()
         catImages.addAll(newImages)
-        notifyItemRangeInserted(oldSize - 1, newImages.size - oldSize)
+        notifyItemRangeInserted(oldSize, newImages.size - oldSize)
     }
 
     override fun getItemCount(): Int = catImages.size
