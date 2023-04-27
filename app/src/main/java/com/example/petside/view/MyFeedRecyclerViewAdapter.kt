@@ -48,7 +48,6 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
 
         Glide.with(holder.itemView.context)
             .load(currentUrl)
-            .override(holder.itemView.width, 600)
             .transition(withCrossFade())
             .transform(
                 CropSquareTransformation(),
