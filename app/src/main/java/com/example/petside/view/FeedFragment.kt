@@ -2,6 +2,7 @@ package com.example.petside.view
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,8 +27,8 @@ class FeedFragment : Fragment() {
     @Inject
     lateinit var imageFeedViewModelFactory: ImageFeedViewModel.Factory
     private lateinit var viewModel: ImageFeedViewModel
-    private var catImages = ArrayList<CatImage>()
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
+    var feedAdapter: MyFeedRecyclerViewAdapter = MyFeedRecyclerViewAdapter()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -45,7 +46,7 @@ class FeedFragment : Fragment() {
 
         with(view) {
             layoutManager = LinearLayoutManager(context)
-            adapter = MyFeedRecyclerViewAdapter(catImages)
+            adapter = feedAdapter
         }
 
         scrollListener =
@@ -59,18 +60,16 @@ class FeedFragment : Fragment() {
         user.observe(viewLifecycleOwner) {
             if (it !== null) {
                 viewModel = imageFeedViewModelFactory.create(it.api_key, parentFragmentManager)
-                feedUpdateObserver(view)
+                feedUpdateObserver()
             }
         }
 
         return view
     }
 
-    private fun feedUpdateObserver(view: RecyclerView) {
+    private fun feedUpdateObserver() {
         viewModel.catImages.observe(viewLifecycleOwner) {
-            val newItemsCount = it.size - catImages.size
-            catImages = it as ArrayList<CatImage>
-            view.adapter?.notifyItemRangeInserted(catImages.size - newItemsCount - 1,newItemsCount)
+            feedAdapter.addCatImages(it as ArrayList<CatImage>)
         }
         viewModel.getNextPage()
     }
