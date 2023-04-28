@@ -2,6 +2,7 @@ package com.example.petside.view
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,11 +66,14 @@ class FeedFragment : Fragment() {
         viewModel.liveFeedList.observe(viewLifecycleOwner) {
             feedAdapter.addCatImages(it as ArrayList<CatImage>)
         }
-        user.observe(viewLifecycleOwner) {
-            fun onSuccess() {
-                viewModel.getNextPage(true, ::onError)
+        if (viewModel.apiKey === "") {
+            user.observe(viewLifecycleOwner) {
+                fun onSuccess() {
+                    viewModel.getNextPage(true, ::onError)
+                }
+                viewModel.apiKey = it.api_key
+                viewModel.initialize(::onSuccess, ::onError)
             }
-            viewModel.initialize(it.api_key, ::onSuccess, ::onError)
         }
     }
 
