@@ -66,14 +66,13 @@ class FeedFragment : Fragment() {
         viewModel.liveFeedList.observe(viewLifecycleOwner) {
             feedAdapter.addCatImages(it as ArrayList<CatImage>)
         }
-        if (viewModel.apiKey === "") {
-            user.observe(viewLifecycleOwner) {
-                fun onSuccess() {
-                    viewModel.getNextPage(true, ::onError)
-                }
-                viewModel.apiKey = it.api_key
-                viewModel.initialize(::onSuccess, ::onError)
+
+        user.observe(viewLifecycleOwner) {
+            fun onSuccess() {
+                viewModel.getNextPage(true, ::onError)
             }
+            viewModel.apiKey = it.api_key
+            viewModel.initialize(::onSuccess, ::onError)
         }
     }
 

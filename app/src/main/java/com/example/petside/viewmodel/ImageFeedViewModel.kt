@@ -13,6 +13,7 @@ import retrofit2.HttpException
 class ImageFeedViewModel : ViewModel() {
 
     lateinit var retrofitService: RetrofitService
+    var initialized = false
     var apiKey: String = ""
     private var limit = 10
     private var page = 0
@@ -28,7 +29,9 @@ class ImageFeedViewModel : ViewModel() {
     private var favouritesList = ArrayList<FavouriteImage>()
 
     fun initialize(onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
-        getFavourites(onSuccess, onError)
+        if (!initialized) {
+            getFavourites(onSuccess, onError)
+        }
     }
 
     fun getNextPage(reload: Boolean = false, onError: (e: HttpException) -> Unit) {
@@ -115,6 +118,7 @@ class ImageFeedViewModel : ViewModel() {
             try {
                 favouritesList = retrofitService.getFavourites(apiKey)
                 liveFavouritesList.value = favouritesList
+                initialized = true
                 onSuccess()
             } catch (e: HttpException) {
                 onError(e)
