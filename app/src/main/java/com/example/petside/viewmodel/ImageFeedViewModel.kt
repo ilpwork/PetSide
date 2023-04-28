@@ -89,7 +89,11 @@ class ImageFeedViewModel : ViewModel() {
         }
     }
 
-    fun deleteFromFavourites(index: Int, onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
+    fun deleteFromFavourites(
+        index: Int,
+        onSuccess: () -> Unit,
+        onError: (e: HttpException) -> Unit
+    ) {
         viewModelScope.launch {
             try {
                 val image = feedList[index]

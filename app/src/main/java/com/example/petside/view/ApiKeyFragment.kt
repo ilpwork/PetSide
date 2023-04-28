@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import com.example.petside.app.App
@@ -14,10 +15,7 @@ import com.example.petside.databinding.FragmentApiKeyBinding
 import com.example.petside.db.Dao
 import com.example.petside.db.UserEntity
 import com.example.petside.retrofit.RetrofitService
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.petside.viewmodel.ApiKeyViewModel
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -33,11 +31,7 @@ class ApiKeyFragment : Fragment() {
     @Inject
     lateinit var dao: Dao
 
-    private val newUser = UserEntity(
-        email = "",
-        description = "",
-        api_key = ""
-    )
+    private val viewModel: ApiKeyViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -50,66 +44,61 @@ class ApiKeyFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = FragmentApiKeyBinding.inflate(inflater, container, false)
         val view = binding.root
         binding.buttonNext.isEnabled = false
 
+        viewModel.retrofitService = retrofitService
+        viewModel.dao = dao
+
         user.observe(viewLifecycleOwner) {
             if (it !== null) {
                 binding.apiKeyInput.setText(it.api_key)
-                newUser.email = it.email
-                newUser.description = it.description
+                viewModel.newUser = it
             }
         }
 
+        setListeners()
+        setObservers()
 
+        return view
+    }
+
+    private fun setObservers() {
+        viewModel.loading.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.buttonNext.visibility = View.GONE
+                binding.progressBar.visibility = View.VISIBLE
+            } else {
+                binding.buttonNext.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun setListeners() {
         binding.apiKeyInput.doOnTextChanged { text, _, _, _ ->
             binding.buttonNext.isEnabled = text != null && text.isNotEmpty()
         }
 
         binding.buttonNext.setOnClickListener {
-            binding.buttonNext.visibility = View.GONE
-            binding.progressBar.visibility = View.VISIBLE
-            checkKey()
+            fun onSuccess() {
+                findNavController().navigate(ApiKeyFragmentDirections.actionApiKeyFragmentToTabBarFragment())
+            }
+
+            fun onError(e: HttpException) {
+                val dialog = AlertFragment(e.message())
+                dialog.show(parentFragmentManager, "ApiKeyError")
+            }
+
+            viewModel.newUser.api_key = binding.apiKeyInput.text.toString()
+            viewModel.checkKey(::onSuccess, ::onError)
         }
 
         binding.backButton.setOnClickListener {
             findNavController().popBackStack()
         }
-
-        return view
     }
 
-    private fun endLoading() {
-        binding.buttonNext.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.GONE
-    }
 
-    override fun onResume() {
-        super.onResume()
-        endLoading()
-    }
-
-    private fun checkKey() {
-        val key = binding.apiKeyInput.text.toString()
-        newUser.api_key = binding.apiKeyInput.text.toString()
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                retrofitService.getFavourites(key)
-                dao.insertUser(newUser)
-            } catch (e: HttpException) {
-                throw CancellationException(e.message())
-            }
-        }.invokeOnCompletion {
-            if (it !== null) {
-                val dialog = AlertFragment(it.message, ::endLoading)
-                dialog.show(parentFragmentManager, "ApiKeyError")
-            } else {
-                CoroutineScope(Dispatchers.Main).launch {
-                    findNavController().navigate(ApiKeyFragmentDirections.actionApiKeyFragmentToTabBarFragment())
-                }
-            }
-        }
-    }
 }

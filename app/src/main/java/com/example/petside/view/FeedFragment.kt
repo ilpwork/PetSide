@@ -55,29 +55,25 @@ class FeedFragment : Fragment() {
             adapter = feedAdapter
         }
 
-        createEndScrollListener(view)
-        feedUpdateObserver()
-        userObserver()
+        setEndScrollListener(view)
+        setObservers()
 
         return view
     }
 
-    private fun feedUpdateObserver() {
+    private fun setObservers() {
         viewModel.liveFeedList.observe(viewLifecycleOwner) {
             feedAdapter.addCatImages(it as ArrayList<CatImage>)
         }
-    }
-
-    private fun userObserver() {
-        fun onSuccess() {
-            viewModel.getNextPage(true, ::onError)
-        }
         user.observe(viewLifecycleOwner) {
+            fun onSuccess() {
+                viewModel.getNextPage(true, ::onError)
+            }
             viewModel.initialize(it.api_key, ::onSuccess, ::onError)
         }
     }
 
-    private fun createEndScrollListener(view: RecyclerView) {
+    private fun setEndScrollListener(view: RecyclerView) {
         scrollListener =
             object : EndlessRecyclerViewScrollListener(view.layoutManager as LinearLayoutManager) {
                 override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView) {
