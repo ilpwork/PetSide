@@ -23,6 +23,7 @@ import com.example.petside.model.CatImage
 import com.example.petside.viewmodel.ImageFeedViewModel
 import jp.wasabeef.glide.transformations.CropSquareTransformation
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation
+import retrofit2.HttpException
 
 
 class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter.ViewHolder>() {
@@ -84,7 +85,7 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
         addToFavouritesButton.setOnClickListener {
             (it as ImageButton).isEnabled = false
 
-            fun onError() {
+            fun onError(e: HttpException) {
                 it.isEnabled = true
             }
 

@@ -7,7 +7,7 @@ import androidx.fragment.app.DialogFragment
 import com.example.petside.R
 
 
-class AlertFragment(private var message: String?, private val onCancel: () -> Unit) :
+class AlertFragment(private var message: String?, private val onCancel: () -> Unit = {}) :
     DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

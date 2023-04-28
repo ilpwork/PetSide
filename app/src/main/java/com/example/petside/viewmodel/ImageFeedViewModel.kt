@@ -1,43 +1,23 @@
 package com.example.petside.viewmodel
 
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.petside.db.UserEntity
+import androidx.lifecycle.viewModelScope
 import com.example.petside.model.CatImage
 import com.example.petside.model.FavouriteImage
 import com.example.petside.retrofit.FavouritesRequest
 import com.example.petside.retrofit.RetrofitService
-import com.example.petside.view.AlertFragment
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class ImageFeedViewModel @AssistedInject constructor(
-    @Assisted val lifecycleOwner: LifecycleOwner,
-    @Assisted val parentFragmentManager: FragmentManager,
-    val user: LiveData<UserEntity>,
-    private val retrofitService: RetrofitService
-) : ViewModel() {
+class ImageFeedViewModel : ViewModel() {
 
-    @AssistedFactory
-    interface Factory {
-        fun create(
-            lifecycleOwner: LifecycleOwner,
-            parentFragmentManager: FragmentManager
-        ): ImageFeedViewModel
-    }
-
+    lateinit var retrofitService: RetrofitService
     private lateinit var apiKey: String
     private var limit = 10
     private var page = 0
-    var loading = false
+    var loading = true
+    var loadingMore = false
     var hasMore = true
 
     var liveFeedList = MutableLiveData<List<CatImage>>()
@@ -47,20 +27,23 @@ class ImageFeedViewModel @AssistedInject constructor(
     var liveFavouritesList = MutableLiveData<List<FavouriteImage>>()
     private var favouritesList = ArrayList<FavouriteImage>()
 
-    init {
-        user.observe(lifecycleOwner) {
-            if (it !== null) {
-                apiKey = it.api_key
-                getFavourites()
-            }
-        }
+    fun initialize(apiKey: String, onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
+        this.apiKey = apiKey
+        getFavourites(onSuccess, onError)
     }
 
-    fun getNextPage() {
-        if (hasMore) {
+    fun getNextPage(reload: Boolean = false, onError: (e: HttpException) -> Unit) {
+        if (reload) {
+            page = 0
+            feedList.clear()
+            hasMore = true
+            liveFeedList.value = feedList
             loading = true
-
-            CoroutineScope(Dispatchers.Main).launch {
+        } else {
+            loadingMore = true
+        }
+        if (hasMore) {
+            viewModelScope.launch {
                 try {
                     val newList = retrofitService.getCatImages(
                         apiKey,
@@ -80,21 +63,16 @@ class ImageFeedViewModel @AssistedInject constructor(
                     page++
                     hasMore = newList.size == 10
                     loading = false
+                    loadingMore = false
                 } catch (e: HttpException) {
-                    val dialog = AlertFragment(e.message(), ::endLoading)
-                    dialog.show(parentFragmentManager, "getImagesPageError")
+                    onError(e)
                 }
             }
         }
     }
 
-
-    fun endLoading() {
-
-    }
-
-    fun addToFavourites(index: Int, onSuccess: () -> Unit, onError: () -> Unit) {
-        CoroutineScope(Dispatchers.Main).launch {
+    fun addToFavourites(index: Int, onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
+        viewModelScope.launch {
             try {
                 val image = feedList[index]
                 val favouriteOnlyId: FavouriteImage =
@@ -106,14 +84,13 @@ class ImageFeedViewModel @AssistedInject constructor(
                 liveFeedList.value = feedList
                 onSuccess()
             } catch (e: HttpException) {
-                val dialog = AlertFragment(e.message(), onError)
-                dialog.show(parentFragmentManager, "addToFavouritesError")
+                onError(e)
             }
         }
     }
 
-    fun deleteFromFavourites(index: Int, onSuccess: () -> Unit, onError: () -> Unit) {
-        CoroutineScope(Dispatchers.Main).launch {
+    fun deleteFromFavourites(index: Int, onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
+        viewModelScope.launch {
             try {
                 val image = feedList[index]
                 image.favourite?.let {
@@ -125,21 +102,19 @@ class ImageFeedViewModel @AssistedInject constructor(
                 liveFavouritesList.value = favouritesList
                 onSuccess()
             } catch (e: HttpException) {
-                val dialog = AlertFragment(e.message(), onError)
-                dialog.show(parentFragmentManager, "deleteFavouriteError")
+                onError(e)
             }
         }
     }
 
-    private fun getFavourites() {
-        CoroutineScope(Dispatchers.Main).launch {
+    private fun getFavourites(onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
+        viewModelScope.launch {
             try {
                 favouritesList = retrofitService.getFavourites(apiKey)
                 liveFavouritesList.value = favouritesList
-                getNextPage() //getFavourites срабатывает только один раз
+                onSuccess()
             } catch (e: HttpException) {
-                val dialog = AlertFragment(e.message(), ::endLoading)
-                dialog.show(parentFragmentManager, "getFavouritesError")
+                onError(e)
             }
         }
     }
