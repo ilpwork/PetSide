@@ -7,7 +7,3 @@ data class AuthRequest(
     val opted_into_mailing_list: Boolean = false
 )
 
-data class AuthDetails(
-    val user_type: String = "personal"
-)
-

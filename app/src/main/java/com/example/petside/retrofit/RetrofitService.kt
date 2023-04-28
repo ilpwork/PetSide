@@ -1,11 +1,8 @@
 package com.example.petside.retrofit
 
 import com.example.petside.model.CatImage
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.Query
+import com.example.petside.model.FavouriteImage
+import retrofit2.http.*
 
 interface RetrofitService {
     @POST("v1/user/passwordlesssignup")
@@ -19,6 +16,18 @@ interface RetrofitService {
         @Query("order") order: String = "DESC"
     ): List<CatImage>
 
+    @POST("v1/favourites")
+    suspend fun addToFavourites(
+        @Header("x-api-key") key: String,
+        @Body favouritesRequest: FavouritesRequest
+    ): FavouriteImage
+
     @GET("v1/favourites")
-    suspend fun getFavourites(@Header("x-api-key") key: String)
+    suspend fun getFavourites(@Header("x-api-key") key: String): ArrayList<FavouriteImage>
+
+    @DELETE("v1/favourites/{favouriteId}")
+    suspend fun deleteFromFavourites(
+        @Header("x-api-key") key: String,
+        @Path("favouriteId") favouriteId: String
+    )
 }

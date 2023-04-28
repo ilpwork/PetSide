@@ -45,6 +45,7 @@ class FeedFragment : Fragment() {
 
         if (!this::viewModel.isInitialized) {
             viewModel = imageFeedViewModelFactory.create(viewLifecycleOwner, parentFragmentManager)
+            feedAdapter.addViewModel(viewModel)
         }
 
         with(view) {
@@ -66,7 +67,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun feedUpdateObserver() {
-        viewModel.catImages.observe(viewLifecycleOwner) {
+        viewModel.liveFeedList.observe(viewLifecycleOwner) {
             feedAdapter.addCatImages(it as ArrayList<CatImage>)
         }
     }

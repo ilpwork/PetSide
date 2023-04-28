@@ -20,6 +20,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withC
 import com.example.petside.R
 import com.example.petside.databinding.FeedItemBinding
 import com.example.petside.model.CatImage
+import com.example.petside.viewmodel.ImageFeedViewModel
 import jp.wasabeef.glide.transformations.CropSquareTransformation
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
@@ -27,6 +28,7 @@ import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter.ViewHolder>() {
 
     private var catImages = ArrayList<CatImage>()
+    lateinit var viewModel: ImageFeedViewModel
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         return ViewHolder(
@@ -46,7 +48,6 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
         val upVoteButton: ImageButton = holder.upVoteButton
         val downVoteButton: ImageButton = holder.downVoteButton
         val moreButton: ImageButton = holder.moreButton
-        val currentUrl: String = item.url
 
         val circularProgressDrawable = CircularProgressDrawable(holder.itemView.context)
         circularProgressDrawable.strokeWidth = 15f
@@ -55,7 +56,7 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
         circularProgressDrawable.start()
 
         Glide.with(holder.itemView.context)
-            .load(currentUrl)
+            .load(item.url)
             .transition(withCrossFade())
             .transform(
                 CropSquareTransformation(),
@@ -64,20 +65,79 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
             .placeholder(circularProgressDrawable)
             .into(imageView)
 
+        if (item.favourite !== null) {
+            addToFavouritesButton.setColorFilter(
+                ContextCompat.getColor(
+                    holder.itemView.context,
+                    R.color.blue2
+                )
+            )
+        } else {
+            addToFavouritesButton.setColorFilter(
+                ContextCompat.getColor(
+                    holder.itemView.context,
+                    R.color.gray3
+                )
+            )
+        }
+
         addToFavouritesButton.setOnClickListener {
-            (it as ImageButton).setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.blue2))
+            (it as ImageButton).isEnabled = false
+
+            fun onError() {
+                it.isEnabled = true
+            }
+
+            if (item.favourite !== null) {
+                fun onSuccess() {
+                    it.isEnabled = true
+                    addToFavouritesButton.setColorFilter(
+                        ContextCompat.getColor(
+                            holder.itemView.context,
+                            R.color.gray3
+                        )
+                    )
+                }
+                viewModel.deleteFromFavourites(position, ::onSuccess, ::onError)
+            } else {
+                fun onSuccess() {
+                    it.isEnabled = true
+                    addToFavouritesButton.setColorFilter(
+                        ContextCompat.getColor(
+                            holder.itemView.context,
+                            R.color.blue2
+                        )
+                    )
+                }
+                viewModel.addToFavourites(position, ::onSuccess, ::onError)
+            }
         }
 
         upVoteButton.setOnClickListener {
-            (it as ImageButton).setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.blue2))
+            (it as ImageButton).setColorFilter(
+                ContextCompat.getColor(
+                    holder.itemView.context,
+                    R.color.blue2
+                )
+            )
         }
 
         downVoteButton.setOnClickListener {
-            (it as ImageButton).setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.blue2))
+            (it as ImageButton).setColorFilter(
+                ContextCompat.getColor(
+                    holder.itemView.context,
+                    R.color.blue2
+                )
+            )
         }
 
         moreButton.setOnClickListener {
-            (it as ImageButton).setColorFilter(ContextCompat.getColor(holder.itemView.context, R.color.blue2))
+            (it as ImageButton).setColorFilter(
+                ContextCompat.getColor(
+                    holder.itemView.context,
+                    R.color.blue2
+                )
+            )
         }
     }
 
@@ -86,6 +146,10 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
         catImages.clear()
         catImages.addAll(newImages)
         notifyItemRangeInserted(oldSize, newImages.size - oldSize)
+    }
+
+    fun addViewModel(imageFeedViewModel: ImageFeedViewModel) {
+        viewModel = imageFeedViewModel
     }
 
     override fun getItemCount(): Int = catImages.size
