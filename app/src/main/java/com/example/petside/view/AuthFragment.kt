@@ -7,18 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import com.example.petside.app.App
 import com.example.petside.databinding.FragmentAuthBinding
 import com.example.petside.db.Dao
 import com.example.petside.db.UserEntity
-import com.example.petside.retrofit.AuthRequest
 import com.example.petside.retrofit.RetrofitService
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.petside.viewmodel.AuthViewModel
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -36,6 +33,8 @@ class AuthFragment : Fragment() {
     @Inject
     lateinit var dao: Dao
 
+    private val viewModel: AuthViewModel by activityViewModels()
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (context.applicationContext as App)
@@ -49,82 +48,73 @@ class AuthFragment : Fragment() {
     ): View {
         binding = FragmentAuthBinding.inflate(inflater, container, false)
         val view = binding.root
-        binding.buttonNext.isEnabled = false
 
-        user.observe(viewLifecycleOwner) {
-            if (it !== null) {
-                binding.emailInput.setText(it.email)
-                binding.descriptionInput.setText(it.description)
-            }
+        viewModel.retrofitService = retrofitService
+        viewModel.dao = dao
+
+        setListeners()
+        setObservers()
+
+        return view
+    }
+
+    private fun setListeners() {
+        binding.emailInput.doOnTextChanged { text, _, _, _ ->
+            viewModel.newUser.email = text.toString()
+            viewModel.checkEmailAndDescription()
         }
 
-        binding.emailInput.doOnTextChanged { _, _, _, _ ->
-            checkEmailAndDescription()
-        }
-
-        binding.descriptionInput.doOnTextChanged { _, _, _, _ ->
-            checkEmailAndDescription()
+        binding.descriptionInput.doOnTextChanged { text, _, _, _ ->
+            viewModel.newUser.description = text.toString()
+            viewModel.checkEmailAndDescription()
         }
 
         binding.buttonNext.setOnClickListener {
-            binding.buttonContainer.visibility = View.GONE
-            binding.progressBar.visibility = View.VISIBLE
             auth()
         }
 
         binding.buttonSkip.setOnClickListener {
             findNavController().navigate(AuthFragmentDirections.actionAuthFragmentToApiKeyFragment())
         }
-
-        return view
     }
 
-    private fun endLoading() {
-        binding.buttonContainer.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.GONE
-    }
+    private fun setObservers() {
+        user.observe(viewLifecycleOwner) {
+            if (it !== null) {
+                binding.emailInput.setText(it.email)
+                binding.descriptionInput.setText(it.description)
+                viewModel.newUser = it
+            }
+        }
 
-    override fun onResume() {
-        super.onResume()
-        endLoading()
-    }
+        viewModel.buttonEnabled.observe(viewLifecycleOwner) {
+            if (it !== null) {
+                binding.buttonNext.isEnabled = it
+            }
+        }
 
-    private fun checkEmailAndDescription() {
-        val description = binding.descriptionInput.text
-        val email = binding.emailInput.text
-        binding.buttonNext.isEnabled =
-            email !== null && android.util.Patterns.EMAIL_ADDRESS.matcher(email)
-                .matches() && description !== null && description.isNotEmpty()
+        viewModel.loading.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.buttonContainer.visibility = View.GONE
+                binding.progressBar.visibility = View.VISIBLE
+            } else {
+                binding.buttonContainer.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.GONE
+            }
+        }
     }
 
     private fun auth() {
-        val user = UserEntity(
-            email = binding.emailInput.text.toString(),
-            description = binding.descriptionInput.text.toString(),
-            api_key = ""
-        )
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                retrofitService.auth(
-                    AuthRequest(
-                        user.email,
-                        user.description
-                    )
-                )
-                dao.insertUser(user)
-            } catch (e: HttpException) {
-                throw CancellationException(e.message())
-            }
-        }.invokeOnCompletion {
-            if (it !== null) {
-                val dialog = AlertFragment(it.message, ::endLoading)
-                dialog.show(parentFragmentManager, "AuthError")
-            } else {
-                CoroutineScope(Dispatchers.Main).launch {
-                    findNavController().navigate(AuthFragmentDirections.actionAuthFragmentToApiKeyFragment())
-                }
-            }
+        fun onSuccess() {
+            findNavController().navigate(AuthFragmentDirections.actionAuthFragmentToApiKeyFragment())
         }
+
+        fun onError(e: HttpException) {
+            val dialog = AlertFragment(e.message())
+            dialog.show(parentFragmentManager, "AuthError")
+        }
+
+        viewModel.auth(::onSuccess, ::onError)
     }
 
 }
