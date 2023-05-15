@@ -2,35 +2,24 @@ package com.example.petside.view
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.petside.R
 import com.example.petside.app.App
-import com.example.petside.db.UserEntity
 import com.example.petside.model.CatImage
-import com.example.petside.retrofit.RetrofitService
 import com.example.petside.utils.EndlessRecyclerViewScrollListener
 import com.example.petside.viewmodel.ImageFeedViewModel
 import retrofit2.HttpException
-import javax.inject.Inject
 
 
 class FeedFragment : Fragment() {
 
-    @Inject
-    lateinit var retrofitService: RetrofitService
-
-    @Inject
-    lateinit var user: LiveData<UserEntity>
-
-    private val viewModel: ImageFeedViewModel by activityViewModels()
+    private val viewModel: ImageFeedViewModel by viewModels()
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
     private var feedAdapter: MyFeedRecyclerViewAdapter = MyFeedRecyclerViewAdapter()
 
@@ -38,7 +27,7 @@ class FeedFragment : Fragment() {
         super.onAttach(context)
         (context.applicationContext as App)
             .appComponent
-            .inject(this)
+            .inject(viewModel)
     }
 
     override fun onCreateView(
@@ -48,7 +37,7 @@ class FeedFragment : Fragment() {
         val view: RecyclerView =
             inflater.inflate(R.layout.feed_item_list, container, false) as RecyclerView
 
-        viewModel.retrofitService = retrofitService
+        viewModel.getUser()
         feedAdapter.addViewModel(viewModel)
 
         with(view) {
@@ -67,7 +56,7 @@ class FeedFragment : Fragment() {
             feedAdapter.addCatImages(it as ArrayList<CatImage>)
         }
 
-        user.observe(viewLifecycleOwner) {
+        viewModel.user.observe(viewLifecycleOwner) {
             fun onSuccess() {
                 viewModel.getNextPage(true, ::onError)
             }

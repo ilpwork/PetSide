@@ -18,8 +18,4 @@ class DatabaseModule {
     fun provideDao(appDatabase: AppDatabase): Dao {
         return appDatabase.getDao()
     }
-    @Provides
-    fun provideUser(dao: Dao): LiveData<UserEntity> {
-        return dao.getUser()
-    }
 }

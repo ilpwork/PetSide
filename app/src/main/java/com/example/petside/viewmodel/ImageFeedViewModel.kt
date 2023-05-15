@@ -1,18 +1,27 @@
 package com.example.petside.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.petside.db.Dao
+import com.example.petside.db.UserEntity
 import com.example.petside.model.CatImage
 import com.example.petside.model.FavouriteImage
 import com.example.petside.retrofit.FavouritesRequest
 import com.example.petside.retrofit.RetrofitService
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import javax.inject.Inject
 
 class ImageFeedViewModel : ViewModel() {
 
+    @Inject
     lateinit var retrofitService: RetrofitService
+
+    @Inject
+    lateinit var dao: Dao
+
     var initialized = false
     var apiKey: String = ""
     private var limit = 10
@@ -21,12 +30,20 @@ class ImageFeedViewModel : ViewModel() {
     var loadingMore = false
     var hasMore = true
 
+    lateinit var user: LiveData<UserEntity>
+
     var liveFeedList = MutableLiveData<List<CatImage>>()
     private var feedList = ArrayList<CatImage>()
 
     //TODO Перенести в другую ВьюМодель
     var liveFavouritesList = MutableLiveData<List<FavouriteImage>>()
     private var favouritesList = ArrayList<FavouriteImage>()
+
+    fun getUser() {
+        viewModelScope.launch {
+            user = dao.getUser()
+        }
+    }
 
     fun initialize(onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
         if (!initialized) {

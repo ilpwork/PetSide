@@ -7,39 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.petside.app.App
 import com.example.petside.databinding.FragmentAuthBinding
-import com.example.petside.db.Dao
-import com.example.petside.db.UserEntity
-import com.example.petside.retrofit.RetrofitService
 import com.example.petside.viewmodel.AuthViewModel
-import retrofit2.HttpException
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 
 class AuthFragment : Fragment() {
 
     private lateinit var binding: FragmentAuthBinding
 
-    @Inject
-    lateinit var user: LiveData<UserEntity>
-
-    @Inject
-    lateinit var retrofitService: RetrofitService
-
-    @Inject
-    lateinit var dao: Dao
-
-    private val viewModel: AuthViewModel by activityViewModels()
+    private val viewModel: AuthViewModel by viewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (context.applicationContext as App)
             .appComponent
-            .inject(this)
+            .inject(viewModel)
     }
 
     override fun onCreateView(
@@ -49,8 +38,7 @@ class AuthFragment : Fragment() {
         binding = FragmentAuthBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        viewModel.retrofitService = retrofitService
-        viewModel.dao = dao
+        viewModel.getUser()
 
         setListeners()
         setObservers()
@@ -60,17 +48,15 @@ class AuthFragment : Fragment() {
 
     private fun setListeners() {
         binding.emailInput.doOnTextChanged { text, _, _, _ ->
-            viewModel.newUser.email = text.toString()
-            viewModel.checkEmailAndDescription()
+            viewModel.updateEmail(text.toString())
         }
 
         binding.descriptionInput.doOnTextChanged { text, _, _, _ ->
-            viewModel.newUser.description = text.toString()
-            viewModel.checkEmailAndDescription()
+            viewModel.updateDescription(text.toString())
         }
 
         binding.buttonNext.setOnClickListener {
-            auth()
+            viewModel.auth()
         }
 
         binding.buttonSkip.setOnClickListener {
@@ -79,7 +65,7 @@ class AuthFragment : Fragment() {
     }
 
     private fun setObservers() {
-        user.observe(viewLifecycleOwner) {
+        viewModel.user.observe(viewLifecycleOwner) {
             if (it !== null) {
                 binding.emailInput.setText(it.email)
                 binding.descriptionInput.setText(it.description)
@@ -87,34 +73,30 @@ class AuthFragment : Fragment() {
             }
         }
 
-        viewModel.buttonEnabled.observe(viewLifecycleOwner) {
-            if (it !== null) {
-                binding.buttonNext.isEnabled = it
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { uiState ->
+                    binding.buttonNext.isEnabled = uiState.buttonEnabled
+
+                    if (uiState.isLoading) {
+                        binding.buttonContainer.visibility = View.GONE
+                        binding.progressBar.visibility = View.VISIBLE
+                    } else {
+                        binding.buttonContainer.visibility = View.VISIBLE
+                        binding.progressBar.visibility = View.GONE
+                    }
+
+                    if (uiState.isUserLoggedIn) {
+                        findNavController().navigate(AuthFragmentDirections.actionAuthFragmentToApiKeyFragment())
+                    }
+
+                    if (uiState.errorMessage !== null) {
+                        findNavController().navigate(AuthFragmentDirections.actionAuthFragmentToApiKeyFragment())
+                        viewModel.clearError()
+                    }
+                }
             }
         }
-
-        viewModel.loading.observe(viewLifecycleOwner) {
-            if (it) {
-                binding.buttonContainer.visibility = View.GONE
-                binding.progressBar.visibility = View.VISIBLE
-            } else {
-                binding.buttonContainer.visibility = View.VISIBLE
-                binding.progressBar.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun auth() {
-        fun onSuccess() {
-            findNavController().navigate(AuthFragmentDirections.actionAuthFragmentToApiKeyFragment())
-        }
-
-        fun onError(e: HttpException) {
-            val dialog = AlertFragment(e.message())
-            dialog.show(parentFragmentManager, "AuthError")
-        }
-
-        viewModel.auth(::onSuccess, ::onError)
     }
 
 }
