@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_authFragment_to_apiKeyFragment"
             app:destination="@id/apiKeyFragment" />
+        <action
+            android:id="@+id/action_authFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
     </fragment>
     <fragment
         android:id="@+id/apiKeyFragment"
@@ -24,10 +27,25 @@
             app:destination="@id/tabBarFragment"
             app:popUpTo="@id/nav_graph.xml"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_apiKeyFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
     </fragment>
     <fragment
         android:id="@+id/tabBarFragment"
         android:name="com.example.petside.view.TabBarFragment"
         android:label="fragment_tab_bar"
-        tools:layout="@layout/fragment_tab_bar" />
+        tools:layout="@layout/fragment_tab_bar" >
+        <action
+            android:id="@+id/action_tabBarFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/alertFragment"
+        android:name="com.example.petside.view.AlertFragment"
+        android:label="AlertFragment" >
+        <argument
+            android:name="message"
+            app:argType="string" />
+    </dialog>
 </navigation>

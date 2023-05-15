@@ -2,6 +2,7 @@ package com.example.petside.view
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,14 +25,11 @@ class ApiKeyFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        (context.applicationContext as App)
-            .appComponent
-            .inject(viewModel)
+        (context.applicationContext as App).appComponent.inject(viewModel)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentApiKeyBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -56,7 +54,7 @@ class ApiKeyFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect {uiState ->
+                viewModel.uiState.collect { uiState ->
                     binding.buttonNext.isEnabled = uiState.buttonEnabled
 
                     if (uiState.isLoading) {
@@ -72,8 +70,11 @@ class ApiKeyFragment : Fragment() {
                     }
 
                     if (uiState.errorMessage !== null) {
-                        val dialog = AlertFragment(uiState.errorMessage)
-                        dialog.show(parentFragmentManager, "ApiKeyError")
+                        findNavController().navigate(
+                            ApiKeyFragmentDirections.actionApiKeyFragmentToAlertFragment(
+                                message = uiState.errorMessage
+                            )
+                        )
                         viewModel.clearError()
                     }
                 }

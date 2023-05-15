@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.petside.R
@@ -25,14 +26,11 @@ class FeedFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        (context.applicationContext as App)
-            .appComponent
-            .inject(viewModel)
+        (context.applicationContext as App).appComponent.inject(viewModel)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val view: RecyclerView =
             inflater.inflate(R.layout.feed_item_list, container, false) as RecyclerView
@@ -76,8 +74,11 @@ class FeedFragment : Fragment() {
     }
 
     fun onError(e: HttpException) {
-        val dialog = AlertFragment(e.message())
-        dialog.show(parentFragmentManager, "addToFavouritesError")
+        findNavController().navigate(
+            TabBarFragmentDirections.actionTabBarFragmentToAlertFragment(
+                message = e.message()
+            )
+        )
     }
 
 }

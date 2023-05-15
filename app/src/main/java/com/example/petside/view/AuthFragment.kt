@@ -26,14 +26,11 @@ class AuthFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        (context.applicationContext as App)
-            .appComponent
-            .inject(viewModel)
+        (context.applicationContext as App).appComponent.inject(viewModel)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentAuthBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -91,7 +88,11 @@ class AuthFragment : Fragment() {
                     }
 
                     if (uiState.errorMessage !== null) {
-                        findNavController().navigate(AuthFragmentDirections.actionAuthFragmentToApiKeyFragment())
+                        findNavController().navigate(
+                            AuthFragmentDirections.actionAuthFragmentToAlertFragment(
+                                message = uiState.errorMessage
+                            )
+                        )
                         viewModel.clearError()
                     }
                 }
