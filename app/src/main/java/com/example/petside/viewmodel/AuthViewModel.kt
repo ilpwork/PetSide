@@ -8,6 +8,8 @@ import com.example.petside.db.Dao
 import com.example.petside.db.UserEntity
 import com.example.petside.retrofit.AuthRequest
 import com.example.petside.retrofit.RetrofitService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,6 +57,7 @@ class AuthViewModel : ViewModel() {
     }
 
     fun updateDescription(description: String) {
+        newUser.description = description
         _uiState.update { currentUiState ->
             currentUiState.copy(
                 buttonEnabled = Patterns.EMAIL_ADDRESS.matcher(newUser.email)
@@ -81,7 +84,9 @@ class AuthViewModel : ViewModel() {
                         newUser.description
                     )
                 )
-                dao.insertUser(newUser)
+                CoroutineScope(Dispatchers.IO).launch {
+                    dao.insertUser(newUser)
+                }
             } catch (e: HttpException) {
                 throw CancellationException(e.message())
             }

@@ -7,6 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,7 +18,7 @@ import com.example.petside.app.App
 import com.example.petside.model.CatImage
 import com.example.petside.utils.EndlessRecyclerViewScrollListener
 import com.example.petside.viewmodel.ImageFeedViewModel
-import retrofit2.HttpException
+import kotlinx.coroutines.launch
 
 
 class FeedFragment : Fragment() {
@@ -56,10 +59,25 @@ class FeedFragment : Fragment() {
 
         viewModel.user.observe(viewLifecycleOwner) {
             fun onSuccess() {
-                viewModel.getNextPage(true, ::onError)
+                viewModel.getNextPage(true)
             }
             viewModel.apiKey = it.api_key
-            viewModel.initialize(::onSuccess, ::onError)
+            viewModel.initialize(::onSuccess)
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { uiState ->
+                    if (uiState.errorMessage !== null) {
+                        findNavController().navigate(
+                            TabBarFragmentDirections.actionTabBarFragmentToAlertFragment(
+                                message = uiState.errorMessage
+                            )
+                        )
+                        viewModel.clearError()
+                    }
+                }
+            }
         }
     }
 
@@ -67,18 +85,10 @@ class FeedFragment : Fragment() {
         scrollListener =
             object : EndlessRecyclerViewScrollListener(view.layoutManager as LinearLayoutManager) {
                 override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView) {
-                    viewModel.getNextPage(false, ::onError)
+                    viewModel.getNextPage(false)
                 }
             }
         view.addOnScrollListener(scrollListener)
-    }
-
-    fun onError(e: HttpException) {
-        findNavController().navigate(
-            TabBarFragmentDirections.actionTabBarFragmentToAlertFragment(
-                message = e.message()
-            )
-        )
     }
 
 }

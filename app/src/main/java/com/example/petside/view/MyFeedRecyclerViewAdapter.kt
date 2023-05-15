@@ -85,9 +85,11 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
         addToFavouritesButton.setOnClickListener {
             (it as ImageButton).isEnabled = false
 
+/*
             fun onError(e: HttpException) {
                 it.isEnabled = true
             }
+*/
 
             if (item.favourite !== null) {
                 fun onSuccess() {
@@ -99,7 +101,7 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
                         )
                     )
                 }
-                viewModel.deleteFromFavourites(position, ::onSuccess, ::onError)
+                viewModel.deleteFromFavourites(position, ::onSuccess)
             } else {
                 fun onSuccess() {
                     it.isEnabled = true
@@ -110,7 +112,7 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
                         )
                     )
                 }
-                viewModel.addToFavourites(position, ::onSuccess, ::onError)
+                viewModel.addToFavourites(position, ::onSuccess)
             }
         }
 

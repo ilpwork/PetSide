@@ -10,9 +10,19 @@ import com.example.petside.model.CatImage
 import com.example.petside.model.FavouriteImage
 import com.example.petside.retrofit.FavouritesRequest
 import com.example.petside.retrofit.RetrofitService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
+
+data class FeedUiState(
+    val isLoading: Boolean = false,
+    val isLoadingMore: Boolean = false,
+    val errorMessage: String? = null,
+)
 
 class ImageFeedViewModel : ViewModel() {
 
@@ -22,12 +32,13 @@ class ImageFeedViewModel : ViewModel() {
     @Inject
     lateinit var dao: Dao
 
+    private val _uiState = MutableStateFlow(FeedUiState())
+    val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
+
     var initialized = false
     var apiKey: String = ""
     private var limit = 10
     private var page = 0
-    var loading = true
-    var loadingMore = false
     var hasMore = true
 
     lateinit var user: LiveData<UserEntity>
@@ -45,29 +56,27 @@ class ImageFeedViewModel : ViewModel() {
         }
     }
 
-    fun initialize(onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
+    fun initialize(onSuccess: () -> Unit) {
         if (!initialized) {
-            getFavourites(onSuccess, onError)
+            getFavourites(onSuccess)
         }
     }
 
-    fun getNextPage(reload: Boolean = false, onError: (e: HttpException) -> Unit) {
+    fun getNextPage(reload: Boolean = false) {
         if (reload) {
             page = 0
             feedList.clear()
             hasMore = true
             liveFeedList.value = feedList
-            loading = true
+            _uiState.update { uiState -> uiState.copy(isLoading = true) }
         } else {
-            loadingMore = true
+            _uiState.update { uiState -> uiState.copy(isLoadingMore = true) }
         }
         if (hasMore) {
             viewModelScope.launch {
                 try {
                     val newList = retrofitService.getCatImages(
-                        apiKey,
-                        limit,
-                        page
+                        apiKey, limit, page
                     )
                     newList.forEach { catImage ->
                         val favouriteImage = favouritesList.find { favouriteImage ->
@@ -81,16 +90,19 @@ class ImageFeedViewModel : ViewModel() {
                     liveFeedList.value = feedList
                     page++
                     hasMore = newList.size == 10
-                    loading = false
-                    loadingMore = false
+                    _uiState.update { uiState ->
+                        uiState.copy(
+                            isLoading = false, isLoadingMore = false
+                        )
+                    }
                 } catch (e: HttpException) {
-                    onError(e)
+                    _uiState.update { uiState -> uiState.copy(errorMessage = e.message()) }
                 }
             }
         }
     }
 
-    fun addToFavourites(index: Int, onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
+    fun addToFavourites(index: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
                 val image = feedList[index]
@@ -103,15 +115,13 @@ class ImageFeedViewModel : ViewModel() {
                 liveFeedList.value = feedList
                 onSuccess()
             } catch (e: HttpException) {
-                onError(e)
+                _uiState.update { uiState -> uiState.copy(errorMessage = e.message()) }
             }
         }
     }
 
     fun deleteFromFavourites(
-        index: Int,
-        onSuccess: () -> Unit,
-        onError: (e: HttpException) -> Unit
+        index: Int, onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
             try {
@@ -125,12 +135,12 @@ class ImageFeedViewModel : ViewModel() {
                 liveFavouritesList.value = favouritesList
                 onSuccess()
             } catch (e: HttpException) {
-                onError(e)
+                _uiState.update { uiState -> uiState.copy(errorMessage = e.message()) }
             }
         }
     }
 
-    private fun getFavourites(onSuccess: () -> Unit, onError: (e: HttpException) -> Unit) {
+    private fun getFavourites(onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
                 favouritesList = retrofitService.getFavourites(apiKey)
@@ -138,10 +148,15 @@ class ImageFeedViewModel : ViewModel() {
                 initialized = true
                 onSuccess()
             } catch (e: HttpException) {
-                onError(e)
+                _uiState.update { uiState -> uiState.copy(errorMessage = e.message()) }
             }
         }
     }
 
+    fun clearError() {
+        _uiState.update { currentUiState ->
+            currentUiState.copy(errorMessage = null)
+        }
+    }
 
 }
