@@ -4,10 +4,10 @@ import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.petside.db.Dao
-import com.example.petside.db.UserEntity
-import com.example.petside.retrofit.AuthRequest
-import com.example.petside.retrofit.RetrofitService
+import com.example.petside.data.db.UserEntity
+import com.example.petside.data.repository.UserRepository
+import com.example.petside.data.retrofit.AuthRequest
+import com.example.petside.data.retrofit.RetrofitService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +32,7 @@ class AuthViewModel : ViewModel() {
     lateinit var retrofitService: RetrofitService
 
     @Inject
-    lateinit var dao: Dao
+    lateinit var userRepository: UserRepository
 
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
@@ -42,7 +42,7 @@ class AuthViewModel : ViewModel() {
 
     fun getUser() {
         viewModelScope.launch {
-            user = dao.getUser()
+            user = userRepository.getUser()
         }
     }
 
@@ -85,7 +85,7 @@ class AuthViewModel : ViewModel() {
                     )
                 )
                 CoroutineScope(Dispatchers.IO).launch {
-                    dao.insertUser(newUser)
+                    userRepository.saveUser(newUser)
                 }
             } catch (e: HttpException) {
                 throw CancellationException(e.message())

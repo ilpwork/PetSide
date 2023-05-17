@@ -1,7 +1,7 @@
-package com.example.petside.retrofit
+package com.example.petside.data.retrofit
 
-import com.example.petside.model.CatImage
-import com.example.petside.model.FavouriteImage
+import com.example.petside.data.model.CatImage
+import com.example.petside.data.model.FavouriteImage
 import retrofit2.http.*
 
 interface RetrofitService {

@@ -1,6 +1,6 @@
 package com.example.petside.di
 
-import com.example.petside.retrofit.RetrofitService
+import com.example.petside.data.retrofit.RetrofitService
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable

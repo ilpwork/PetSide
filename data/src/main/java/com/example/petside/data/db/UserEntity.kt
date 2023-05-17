@@ -1,4 +1,4 @@
-package com.example.petside.db
+package com.example.petside.data.db
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

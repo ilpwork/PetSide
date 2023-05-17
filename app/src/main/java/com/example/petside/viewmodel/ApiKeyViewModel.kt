@@ -3,9 +3,9 @@ package com.example.petside.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.petside.db.Dao
-import com.example.petside.db.UserEntity
-import com.example.petside.retrofit.RetrofitService
+import com.example.petside.data.db.UserEntity
+import com.example.petside.data.repository.UserRepository
+import com.example.petside.data.retrofit.RetrofitService
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +30,7 @@ class ApiKeyViewModel : ViewModel() {
     lateinit var retrofitService: RetrofitService
 
     @Inject
-    lateinit var dao: Dao
+    lateinit var userRepository: UserRepository
 
     private val _uiState = MutableStateFlow(ApiKeyUiState())
     val uiState: StateFlow<ApiKeyUiState> = _uiState.asStateFlow()
@@ -39,7 +39,7 @@ class ApiKeyViewModel : ViewModel() {
     var newUser = UserEntity()
     fun getUser() {
         viewModelScope.launch {
-            user = dao.getUser()
+            user = userRepository.getUser()
         }
     }
 
@@ -64,7 +64,7 @@ class ApiKeyViewModel : ViewModel() {
             try {
                 retrofitService.getFavourites(newUser.api_key)
                 CoroutineScope(Dispatchers.IO).launch {
-                    dao.insertUser(newUser)
+                    userRepository.saveUser(newUser)
                 }
             } catch (e: HttpException) {
                 throw CancellationException(e.message())

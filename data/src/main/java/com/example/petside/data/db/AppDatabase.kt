@@ -1,4 +1,4 @@
-package com.example.petside.db
+package com.example.petside.data.db
 
 import android.content.Context
 import androidx.room.Database

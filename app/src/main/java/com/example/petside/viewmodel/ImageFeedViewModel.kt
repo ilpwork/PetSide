@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.petside.db.Dao
-import com.example.petside.db.UserEntity
-import com.example.petside.model.CatImage
-import com.example.petside.model.FavouriteImage
-import com.example.petside.retrofit.FavouritesRequest
-import com.example.petside.retrofit.RetrofitService
+import com.example.petside.data.db.UserEntity
+import com.example.petside.data.model.CatImage
+import com.example.petside.data.model.FavouriteImage
+import com.example.petside.data.repository.UserRepository
+import com.example.petside.data.retrofit.FavouritesRequest
+import com.example.petside.data.retrofit.RetrofitService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +30,7 @@ class ImageFeedViewModel : ViewModel() {
     lateinit var retrofitService: RetrofitService
 
     @Inject
-    lateinit var dao: Dao
+    lateinit var userRepository: UserRepository
 
     private val _uiState = MutableStateFlow(FeedUiState())
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
@@ -52,7 +52,7 @@ class ImageFeedViewModel : ViewModel() {
 
     fun getUser() {
         viewModelScope.launch {
-            user = dao.getUser()
+            user = userRepository.getUser()
         }
     }
 

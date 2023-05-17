@@ -1,4 +1,4 @@
-package com.example.petside.retrofit
+package com.example.petside.data.retrofit
 
 data class AuthRequest(
     val email: String,
