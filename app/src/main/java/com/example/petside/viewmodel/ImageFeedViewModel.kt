@@ -1,15 +1,23 @@
 package com.example.petside.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.petside.data.db.UserEntity
 import com.example.petside.data.model.CatImage
 import com.example.petside.data.model.FavouriteImage
+import com.example.petside.data.repository.CatImageRepository
+import com.example.petside.data.repository.CatImagesPagingSource
 import com.example.petside.data.repository.UserRepository
 import com.example.petside.data.retrofit.FavouritesRequest
 import com.example.petside.data.retrofit.RetrofitService
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,12 +40,17 @@ class ImageFeedViewModel : ViewModel() {
     @Inject
     lateinit var userRepository: UserRepository
 
+    @Inject
+    lateinit var catImageRepository: CatImageRepository
+
+    var _list = MutableLiveData<PagingData<CatImage>>()
+    var list: LiveData<PagingData<CatImage>> = _list
+
     private val _uiState = MutableStateFlow(FeedUiState())
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
 
     var initialized = false
     var apiKey: String = ""
-    private var limit = 10
     private var page = 0
     var hasMore = true
 
@@ -56,13 +69,14 @@ class ImageFeedViewModel : ViewModel() {
         }
     }
 
-    fun initialize(onSuccess: () -> Unit) {
+    fun initialize() {
         if (!initialized) {
-            getFavourites(onSuccess)
+            getFavourites()
+            _list = catImageRepository.getCatImages().cachedIn(viewModelScope) as MutableLiveData<PagingData<CatImage>>
         }
     }
 
-    fun getNextPage(reload: Boolean = false) {
+    /*fun getNextPage(reload: Boolean = false) {
         if (reload) {
             page = 0
             feedList.clear()
@@ -76,7 +90,7 @@ class ImageFeedViewModel : ViewModel() {
             viewModelScope.launch {
                 try {
                     val newList = retrofitService.getCatImages(
-                        apiKey, limit, page
+                        apiKey, page
                     )
                     newList.forEach { catImage ->
                         val favouriteImage = favouritesList.find { favouriteImage ->
@@ -100,7 +114,7 @@ class ImageFeedViewModel : ViewModel() {
                 }
             }
         }
-    }
+    }*/
 
     fun addToFavourites(index: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {
@@ -140,13 +154,12 @@ class ImageFeedViewModel : ViewModel() {
         }
     }
 
-    private fun getFavourites(onSuccess: () -> Unit) {
+    private fun getFavourites() {
         viewModelScope.launch {
             try {
                 favouritesList = retrofitService.getFavourites(apiKey)
                 liveFavouritesList.value = favouritesList
                 initialized = true
-                onSuccess()
             } catch (e: HttpException) {
                 _uiState.update { uiState -> uiState.copy(errorMessage = e.message()) }
             }

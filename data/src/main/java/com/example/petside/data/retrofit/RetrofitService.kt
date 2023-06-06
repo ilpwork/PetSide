@@ -11,8 +11,8 @@ interface RetrofitService {
     @GET("v1/images/search")
     suspend fun getCatImages(
         @Header("x-api-key") key: String,
-        @Query("limit") limit: Int,
         @Query("page") page: Int,
+        @Query("limit") limit: Int = 10,
         @Query("order") order: String = "DESC"
     ): List<CatImage>
 

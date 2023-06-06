@@ -2,6 +2,7 @@ package com.example.petside.view
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,13 +19,16 @@ import com.example.petside.app.App
 import com.example.petside.data.model.CatImage
 import com.example.petside.utils.EndlessRecyclerViewScrollListener
 import com.example.petside.viewmodel.ImageFeedViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
 class FeedFragment : Fragment() {
 
     private val viewModel: ImageFeedViewModel by viewModels()
-    private lateinit var scrollListener: EndlessRecyclerViewScrollListener
     private var feedAdapter: MyFeedRecyclerViewAdapter = MyFeedRecyclerViewAdapter()
 
     override fun onAttach(context: Context) {
@@ -45,24 +49,25 @@ class FeedFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = feedAdapter
         }
-
-        setEndScrollListener(view)
         setObservers()
 
         return view
     }
 
     private fun setObservers() {
-        viewModel.liveFeedList.observe(viewLifecycleOwner) {
-            feedAdapter.addCatImages(it as ArrayList<CatImage>)
+        CoroutineScope(Dispatchers.Main).launch {
+            viewModel.list.observe(viewLifecycleOwner) {
+                Log.i("123123", "ready")
+                feedAdapter.submitData(lifecycle, it)
+            }
         }
 
         viewModel.user.observe(viewLifecycleOwner) {
-            fun onSuccess() {
+            /*fun onSuccess() {
                 viewModel.getNextPage(true)
-            }
+            }*/
             viewModel.apiKey = it.api_key
-            viewModel.initialize(::onSuccess)
+            viewModel.initialize()
         }
 
         lifecycleScope.launch {
@@ -79,16 +84,6 @@ class FeedFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private fun setEndScrollListener(view: RecyclerView) {
-        scrollListener =
-            object : EndlessRecyclerViewScrollListener(view.layoutManager as LinearLayoutManager) {
-                override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView) {
-                    viewModel.getNextPage(false)
-                }
-            }
-        view.addOnScrollListener(scrollListener)
     }
 
 }

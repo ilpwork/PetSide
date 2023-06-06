@@ -10,6 +10,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.core.content.ContextCompat
+import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
@@ -26,7 +29,8 @@ import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 import retrofit2.HttpException
 
 
-class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter.ViewHolder>() {
+class MyFeedRecyclerViewAdapter :
+    PagingDataAdapter<CatImage, MyFeedRecyclerViewAdapter.ViewHolder>(CatImageComparator)  {
 
     private var catImages = ArrayList<CatImage>()
     lateinit var viewModel: ImageFeedViewModel
@@ -142,6 +146,8 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
                 )
             )
         }
+
+
     }
 
     fun addCatImages(newImages: ArrayList<CatImage>) {
@@ -163,6 +169,16 @@ class MyFeedRecyclerViewAdapter : RecyclerView.Adapter<MyFeedRecyclerViewAdapter
         val upVoteButton = binding.upVoteButton
         val downVoteButton = binding.downVoteButton
         val moreButton = binding.moreButton
+    }
+
+    object CatImageComparator : DiffUtil.ItemCallback<CatImage>() {
+        override fun areItemsTheSame(oldItem: CatImage, newItem: CatImage): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: CatImage, newItem: CatImage): Boolean {
+            return oldItem.url == newItem.url
+        }
     }
 
 }
