@@ -30,9 +30,7 @@ import retrofit2.HttpException
 
 
 class MyFeedRecyclerViewAdapter :
-    PagingDataAdapter<CatImage, MyFeedRecyclerViewAdapter.ViewHolder>(CatImageComparator)  {
-
-    private var catImages = ArrayList<CatImage>()
+    PagingDataAdapter<CatImage, MyFeedRecyclerViewAdapter.ViewHolder>(CatImageComparator) {
     lateinit var viewModel: ImageFeedViewModel
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -47,121 +45,114 @@ class MyFeedRecyclerViewAdapter :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = catImages[position]
-        val imageView: ImageView = holder.imageView
-        val addToFavouritesButton: ImageButton = holder.addToFavouritesButton
-        val upVoteButton: ImageButton = holder.upVoteButton
-        val downVoteButton: ImageButton = holder.downVoteButton
-        val moreButton: ImageButton = holder.moreButton
+        val item = getItem(position)
+        if (item !== null) {
+            val imageView: ImageView = holder.imageView
+            val addToFavouritesButton: ImageButton = holder.addToFavouritesButton
+            val upVoteButton: ImageButton = holder.upVoteButton
+            val downVoteButton: ImageButton = holder.downVoteButton
+            val moreButton: ImageButton = holder.moreButton
 
-        val circularProgressDrawable = CircularProgressDrawable(holder.itemView.context)
-        circularProgressDrawable.strokeWidth = 15f
-        circularProgressDrawable.centerRadius = 60f
-        circularProgressDrawable.setColorSchemeColors(Color.GREEN)
-        circularProgressDrawable.start()
+            val circularProgressDrawable = CircularProgressDrawable(holder.itemView.context)
+            circularProgressDrawable.strokeWidth = 15f
+            circularProgressDrawable.centerRadius = 60f
+            circularProgressDrawable.setColorSchemeColors(Color.GREEN)
+            circularProgressDrawable.start()
 
-        Glide.with(holder.itemView.context)
-            .load(item.url)
-            .transition(withCrossFade())
-            .transform(
-                CropSquareTransformation(),
-                RoundedCornersTransformation(16, 0, RoundedCornersTransformation.CornerType.TOP)
-            )
-            .placeholder(circularProgressDrawable)
-            .into(imageView)
-
-        if (item.favourite !== null) {
-            addToFavouritesButton.setColorFilter(
-                ContextCompat.getColor(
-                    holder.itemView.context,
-                    R.color.blue2
+            Glide.with(holder.itemView.context)
+                .load(item.url)
+                .transition(withCrossFade())
+                .transform(
+                    CropSquareTransformation(),
+                    RoundedCornersTransformation(16, 0, RoundedCornersTransformation.CornerType.TOP)
                 )
-            )
-        } else {
-            addToFavouritesButton.setColorFilter(
-                ContextCompat.getColor(
-                    holder.itemView.context,
-                    R.color.gray3
-                )
-            )
-        }
-
-        addToFavouritesButton.setOnClickListener {
-            (it as ImageButton).isEnabled = false
-
-/*
-            fun onError(e: HttpException) {
-                it.isEnabled = true
-            }
-*/
+                .placeholder(circularProgressDrawable)
+                .into(imageView)
 
             if (item.favourite !== null) {
-                fun onSuccess() {
-                    it.isEnabled = true
-                    addToFavouritesButton.setColorFilter(
-                        ContextCompat.getColor(
-                            holder.itemView.context,
-                            R.color.gray3
-                        )
+                addToFavouritesButton.setColorFilter(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.blue2
                     )
-                }
-                viewModel.deleteFromFavourites(position, ::onSuccess)
+                )
             } else {
-                fun onSuccess() {
-                    it.isEnabled = true
-                    addToFavouritesButton.setColorFilter(
-                        ContextCompat.getColor(
-                            holder.itemView.context,
-                            R.color.blue2
-                        )
+                addToFavouritesButton.setColorFilter(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.gray3
                     )
+                )
+            }
+
+            addToFavouritesButton.setOnClickListener {
+                (it as ImageButton).isEnabled = false
+
+                /*
+                fun onError(e: HttpException) {
+                    it.isEnabled = true
                 }
-                viewModel.addToFavourites(position, ::onSuccess)
+    */
+
+                if (item.favourite !== null) {
+                    fun onSuccess() {
+                        it.isEnabled = true
+                        addToFavouritesButton.setColorFilter(
+                            ContextCompat.getColor(
+                                holder.itemView.context,
+                                R.color.gray3
+                            )
+                        )
+                    }
+                    viewModel.deleteFromFavourites(position, ::onSuccess)
+                } else {
+                    fun onSuccess() {
+                        it.isEnabled = true
+                        addToFavouritesButton.setColorFilter(
+                            ContextCompat.getColor(
+                                holder.itemView.context,
+                                R.color.blue2
+                            )
+                        )
+                    }
+                    viewModel.addToFavourites(position, ::onSuccess)
+                }
+            }
+
+            upVoteButton.setOnClickListener {
+                (it as ImageButton).setColorFilter(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.blue2
+                    )
+                )
+            }
+
+            downVoteButton.setOnClickListener {
+                (it as ImageButton).setColorFilter(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.blue2
+                    )
+                )
+            }
+
+            moreButton.setOnClickListener {
+                (it as ImageButton).setColorFilter(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.blue2
+                    )
+                )
             }
         }
 
-        upVoteButton.setOnClickListener {
-            (it as ImageButton).setColorFilter(
-                ContextCompat.getColor(
-                    holder.itemView.context,
-                    R.color.blue2
-                )
-            )
-        }
 
-        downVoteButton.setOnClickListener {
-            (it as ImageButton).setColorFilter(
-                ContextCompat.getColor(
-                    holder.itemView.context,
-                    R.color.blue2
-                )
-            )
-        }
-
-        moreButton.setOnClickListener {
-            (it as ImageButton).setColorFilter(
-                ContextCompat.getColor(
-                    holder.itemView.context,
-                    R.color.blue2
-                )
-            )
-        }
-
-
-    }
-
-    fun addCatImages(newImages: ArrayList<CatImage>) {
-        val oldSize = catImages.size
-        catImages.clear()
-        catImages.addAll(newImages)
-        notifyItemRangeInserted(oldSize, newImages.size - oldSize)
     }
 
     fun addViewModel(imageFeedViewModel: ImageFeedViewModel) {
         viewModel = imageFeedViewModel
     }
-
-    override fun getItemCount(): Int = catImages.size
 
     inner class ViewHolder(binding: FeedItemBinding) : RecyclerView.ViewHolder(binding.root) {
         val imageView = binding.imageView
