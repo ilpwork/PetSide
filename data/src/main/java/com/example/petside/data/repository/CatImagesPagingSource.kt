@@ -13,7 +13,7 @@ class CatImagesPagingSource(
     ): LoadResult<Int, CatImage> {
         return try {
             // Start refresh at page 1 if undefined.
-            val nextPageNumber = params.key ?: 1
+            val nextPageNumber = params.key ?: 0
             val response = retrofitService.getCatImages(apiKey, nextPageNumber)
             LoadResult.Page(
                 data = response, prevKey = null, // Only paging forward.

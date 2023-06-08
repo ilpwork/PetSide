@@ -1,6 +1,5 @@
 package com.example.petside.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,7 +12,6 @@ import com.example.petside.data.db.UserEntity
 import com.example.petside.data.model.CatImage
 import com.example.petside.data.model.FavouriteImage
 import com.example.petside.data.repository.CatImageRepository
-import com.example.petside.data.repository.CatImagesPagingSource
 import com.example.petside.data.repository.UserRepository
 import com.example.petside.data.retrofit.FavouritesRequest
 import com.example.petside.data.retrofit.RetrofitService
@@ -43,16 +41,18 @@ class ImageFeedViewModel : ViewModel() {
     @Inject
     lateinit var catImageRepository: CatImageRepository
 
-    var _list = MutableLiveData<PagingData<CatImage>>()
-    var list: LiveData<PagingData<CatImage>> = _list
+    var list: Flow<PagingData<CatImage>> = Pager(
+        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        pagingSourceFactory = { catImageRepository.getPagingSource() }
+    )
+        .flow
+        .cachedIn(viewModelScope)
 
     private val _uiState = MutableStateFlow(FeedUiState())
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
 
     var initialized = false
     var apiKey: String = ""
-    private var page = 0
-    var hasMore = true
 
     lateinit var user: LiveData<UserEntity>
 
@@ -72,49 +72,9 @@ class ImageFeedViewModel : ViewModel() {
     fun initialize() {
         if (!initialized) {
             getFavourites()
-            _list = catImageRepository.getCatImages().cachedIn(viewModelScope) as MutableLiveData<PagingData<CatImage>>
         }
     }
 
-    /*fun getNextPage(reload: Boolean = false) {
-        if (reload) {
-            page = 0
-            feedList.clear()
-            hasMore = true
-            liveFeedList.value = feedList
-            _uiState.update { uiState -> uiState.copy(isLoading = true) }
-        } else {
-            _uiState.update { uiState -> uiState.copy(isLoadingMore = true) }
-        }
-        if (hasMore) {
-            viewModelScope.launch {
-                try {
-                    val newList = retrofitService.getCatImages(
-                        apiKey, page
-                    )
-                    newList.forEach { catImage ->
-                        val favouriteImage = favouritesList.find { favouriteImage ->
-                            catImage.id == favouriteImage.image.id
-                        }
-                        if (favouriteImage !== null) {
-                            catImage.favourite = favouriteImage.id
-                        }
-                    }
-                    feedList.addAll(newList)
-                    liveFeedList.value = feedList
-                    page++
-                    hasMore = newList.size == 10
-                    _uiState.update { uiState ->
-                        uiState.copy(
-                            isLoading = false, isLoadingMore = false
-                        )
-                    }
-                } catch (e: HttpException) {
-                    _uiState.update { uiState -> uiState.copy(errorMessage = e.message()) }
-                }
-            }
-        }
-    }*/
 
     fun addToFavourites(index: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {

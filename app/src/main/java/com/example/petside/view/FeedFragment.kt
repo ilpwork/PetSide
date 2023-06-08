@@ -55,10 +55,12 @@ class FeedFragment : Fragment() {
     }
 
     private fun setObservers() {
-        CoroutineScope(Dispatchers.Main).launch {
-            viewModel.list.observe(viewLifecycleOwner) {
-                Log.i("123123", "ready")
-                feedAdapter.submitData(lifecycle, it)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.list.collectLatest {
+                    Log.i("123123", "ready")
+                    feedAdapter.submitData(lifecycle, it)
+                }
             }
         }
 

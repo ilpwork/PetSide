@@ -30,8 +30,8 @@ import retrofit2.HttpException
 
 
 class MyFeedRecyclerViewAdapter :
-    PagingDataAdapter<CatImage, MyFeedRecyclerViewAdapter.ViewHolder>(CatImageComparator) {
-    lateinit var viewModel: ImageFeedViewModel
+    PagingDataAdapter<CatImage, MyFeedRecyclerViewAdapter.ViewHolder>(CAT_IMAGE_DIFF_CALLBACK) {
+    private lateinit var viewModel: ImageFeedViewModel
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         return ViewHolder(
@@ -162,13 +162,15 @@ class MyFeedRecyclerViewAdapter :
         val moreButton = binding.moreButton
     }
 
-    object CatImageComparator : DiffUtil.ItemCallback<CatImage>() {
-        override fun areItemsTheSame(oldItem: CatImage, newItem: CatImage): Boolean {
-            return oldItem.id == newItem.id
-        }
+    companion object {
+        private val CAT_IMAGE_DIFF_CALLBACK = object : DiffUtil.ItemCallback<CatImage>() {
+            override fun areItemsTheSame(oldItem: CatImage, newItem: CatImage): Boolean {
+                return oldItem.id == newItem.id
+            }
 
-        override fun areContentsTheSame(oldItem: CatImage, newItem: CatImage): Boolean {
-            return oldItem.url == newItem.url
+            override fun areContentsTheSame(oldItem: CatImage, newItem: CatImage): Boolean {
+                return oldItem.url == newItem.url
+            }
         }
     }
 

@@ -6,6 +6,5 @@ import androidx.paging.liveData
 import com.example.petside.data.retrofit.RetrofitService
 
 class CatImageRepository(val retrofitService: RetrofitService, val apiKey: String) {
-    fun getCatImages() = Pager(config = PagingConfig(pageSize = 10),
-        pagingSourceFactory = { CatImagesPagingSource(retrofitService, apiKey) }).liveData
+    fun getPagingSource() = CatImagesPagingSource(retrofitService, apiKey)
 }
