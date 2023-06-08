@@ -10,7 +10,7 @@ import com.example.petside.viewmodel.ImageFeedViewModel
 import dagger.BindsInstance
 import dagger.Component
 
-@Component(modules = [AppModule::class, DatabaseModule::class, NetworkModule::class, DataModule::class])
+@Component(modules = [AppModule::class, DatabaseModule::class, NetworkModule::class, DataModule::class, DomainModule::class])
 interface AppComponent {
 
     @Component.Builder

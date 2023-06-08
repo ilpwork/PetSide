@@ -1,4 +1,4 @@
-package com.example.petside.data.model
+package com.example.domain.model
 
 data class FavouriteImage(
     val id: String,

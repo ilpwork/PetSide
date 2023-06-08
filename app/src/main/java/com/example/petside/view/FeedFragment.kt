@@ -16,12 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.petside.R
 import com.example.petside.app.App
-import com.example.petside.data.model.CatImage
-import com.example.petside.utils.EndlessRecyclerViewScrollListener
 import com.example.petside.viewmodel.ImageFeedViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

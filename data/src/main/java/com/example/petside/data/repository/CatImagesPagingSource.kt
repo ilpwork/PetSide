@@ -2,7 +2,7 @@ package com.example.petside.data.repository
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.example.petside.data.model.CatImage
+import com.example.domain.model.CatImage
 import com.example.petside.data.retrofit.RetrofitService
 
 class CatImagesPagingSource(

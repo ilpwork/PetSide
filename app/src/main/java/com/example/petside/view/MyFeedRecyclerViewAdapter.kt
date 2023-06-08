@@ -22,7 +22,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.example.petside.R
 import com.example.petside.databinding.FeedItemBinding
-import com.example.petside.data.model.CatImage
+import com.example.domain.model.CatImage
 import com.example.petside.viewmodel.ImageFeedViewModel
 import jp.wasabeef.glide.transformations.CropSquareTransformation
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation

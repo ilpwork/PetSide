@@ -8,11 +8,11 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.petside.data.db.UserEntity
-import com.example.petside.data.model.CatImage
-import com.example.petside.data.model.FavouriteImage
+import com.example.domain.model.CatImage
+import com.example.domain.model.FavouriteImage
+import com.example.domain.model.User
+import com.example.domain.usecase.GetUserUseCase
 import com.example.petside.data.repository.CatImageRepository
-import com.example.petside.data.repository.UserRepository
 import com.example.petside.data.retrofit.FavouritesRequest
 import com.example.petside.data.retrofit.RetrofitService
 import kotlinx.coroutines.flow.Flow
@@ -36,17 +36,16 @@ class ImageFeedViewModel : ViewModel() {
     lateinit var retrofitService: RetrofitService
 
     @Inject
-    lateinit var userRepository: UserRepository
+    lateinit var getUserUseCase: GetUserUseCase
 
     @Inject
     lateinit var catImageRepository: CatImageRepository
 
-    var list: Flow<PagingData<CatImage>> = Pager(
-        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
-        pagingSourceFactory = { catImageRepository.getPagingSource() }
-    )
-        .flow
-        .cachedIn(viewModelScope)
+    var list: Flow<PagingData<CatImage>> =
+        Pager(config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+            pagingSourceFactory = { catImageRepository.getPagingSource() }).flow.cachedIn(
+                viewModelScope
+            )
 
     private val _uiState = MutableStateFlow(FeedUiState())
     val uiState: StateFlow<FeedUiState> = _uiState.asStateFlow()
@@ -54,7 +53,7 @@ class ImageFeedViewModel : ViewModel() {
     var initialized = false
     var apiKey: String = ""
 
-    lateinit var user: LiveData<UserEntity>
+    lateinit var user: LiveData<User>
 
     var liveFeedList = MutableLiveData<List<CatImage>>()
     private var feedList = ArrayList<CatImage>()
@@ -65,7 +64,7 @@ class ImageFeedViewModel : ViewModel() {
 
     fun getUser() {
         viewModelScope.launch {
-            user = userRepository.getUser()
+            user = getUserUseCase.execute()
         }
     }
 

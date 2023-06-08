@@ -4,8 +4,9 @@ import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.petside.data.db.UserEntity
-import com.example.petside.data.repository.UserRepository
+import com.example.domain.model.User
+import com.example.domain.usecase.GetUserUseCase
+import com.example.domain.usecase.SaveUserUseCase
 import com.example.petside.data.retrofit.AuthRequest
 import com.example.petside.data.retrofit.RetrofitService
 import kotlinx.coroutines.CoroutineScope
@@ -32,17 +33,20 @@ class AuthViewModel : ViewModel() {
     lateinit var retrofitService: RetrofitService
 
     @Inject
-    lateinit var userRepository: UserRepository
+    lateinit var getUserUseCase: GetUserUseCase
+
+    @Inject
+    lateinit var saveUserUseCase: SaveUserUseCase
 
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    lateinit var user: LiveData<UserEntity>
-    var newUser = UserEntity()
+    lateinit var user: LiveData<User>
+    var newUser = User()
 
     fun getUser() {
         viewModelScope.launch {
-            user = userRepository.getUser()
+            user = getUserUseCase.execute()
         }
     }
 
@@ -80,12 +84,11 @@ class AuthViewModel : ViewModel() {
             try {
                 retrofitService.auth(
                     AuthRequest(
-                        newUser.email,
-                        newUser.description
+                        newUser.email, newUser.description
                     )
                 )
                 CoroutineScope(Dispatchers.IO).launch {
-                    userRepository.saveUser(newUser)
+                    saveUserUseCase.execute(newUser)
                 }
             } catch (e: HttpException) {
                 throw CancellationException(e.message())
@@ -93,9 +96,7 @@ class AuthViewModel : ViewModel() {
         }.invokeOnCompletion {
             _uiState.update { currentUiState ->
                 currentUiState.copy(
-                    isLoading = false,
-                    isUserLoggedIn = it === null,
-                    errorMessage = it?.message
+                    isLoading = false, isUserLoggedIn = it === null, errorMessage = it?.message
                 )
             }
         }

@@ -17,8 +17,3 @@ data class UserEntity(
     var api_key: String = ""
 )
 
-/*
-data class ApiKeyUpdate(
-    val id: Int = 0,
-    val api_key: String
-)*/

@@ -3,8 +3,9 @@ package com.example.petside.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.petside.data.db.UserEntity
-import com.example.petside.data.repository.UserRepository
+import com.example.domain.model.User
+import com.example.domain.usecase.GetUserUseCase
+import com.example.domain.usecase.SaveUserUseCase
 import com.example.petside.data.retrofit.RetrofitService
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -30,16 +31,19 @@ class ApiKeyViewModel : ViewModel() {
     lateinit var retrofitService: RetrofitService
 
     @Inject
-    lateinit var userRepository: UserRepository
+    lateinit var getUserUseCase: GetUserUseCase
+
+    @Inject
+    lateinit var saveUserUseCase: SaveUserUseCase
 
     private val _uiState = MutableStateFlow(ApiKeyUiState())
     val uiState: StateFlow<ApiKeyUiState> = _uiState.asStateFlow()
 
-    lateinit var user: LiveData<UserEntity>
-    var newUser = UserEntity()
+    lateinit var user: LiveData<User>
+    var newUser = User()
     fun getUser() {
         viewModelScope.launch {
-            user = userRepository.getUser()
+            user = getUserUseCase.execute()
         }
     }
 
@@ -64,7 +68,7 @@ class ApiKeyViewModel : ViewModel() {
             try {
                 retrofitService.getFavourites(newUser.api_key)
                 CoroutineScope(Dispatchers.IO).launch {
-                    userRepository.saveUser(newUser)
+                    saveUserUseCase.execute(newUser)
                 }
             } catch (e: HttpException) {
                 throw CancellationException(e.message())
@@ -72,9 +76,7 @@ class ApiKeyViewModel : ViewModel() {
         }.invokeOnCompletion {
             _uiState.update { currentUiState ->
                 currentUiState.copy(
-                    isLoading = false,
-                    isUserLoggedIn = it === null,
-                    errorMessage = it?.message
+                    isLoading = false, isUserLoggedIn = it === null, errorMessage = it?.message
                 )
             }
         }
